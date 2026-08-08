@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Student Result System</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="container">
+            <h2>Student Result System</h2>
+            <input type="text" id="name" placeholder="Enter Student Name">
+            <input type="number" id="Physics" placeholder="Physics Marks">
+            <input type="number" id="Chemistry" placeholder="Chemistry Marks">
+            <input type="number" id="Maths" placeholder="Mathematics Marks">
+            <button onclick="calculate()">Calculate Result</button>
+            <div class="result">
+                <label>Total Marks</label>
+                <input type="text" id="total" readonly>
+            </div>
+        </div>
+        <h3>Student Records</h3>
+        <table id="StudentTable">
+            <tr>
+                <th>StudentName</th>
+                <th>TotalMarks</th>
+                <th>percentage</th>
+            </tr>
+        </table>
+        <h2 id="topper">Topper:</h2>
+        <script src="script.js"></script>
+    </body>
+</html>
