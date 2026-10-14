@@ -2,13 +2,86 @@
 <html>
 <head>
     <title>Cricket Registration Form</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: lightblue;
+            text-align: center;
+        }
+
+        .container {
+            width: 400px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 20px;
+            border: 1px solid black;
+            border-radius: 10px;
+        }
+
+        h1 {
+            color: darkgreen;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 90%;
+            padding: 8px;
+            margin: 8px;
+            border: 1px solid gray;
+            border-radius: 5px;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin: 8px;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="reset"] {
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: darkgreen;
+        }
+
+        input[type="reset"]:hover {
+            background-color: darkred;
+        }
+
+        hr {
+            border: 1px solid gray;
+        }
+    </style>
 </head>
 <body>
 
     <h1 align="center">Cricket Registration Form</h1>
     <hr>
-
-    <form>
+    <div class="container">
+        <form>
 
         <label>Full Name:</label><br>
         <input type="text" placeholder="Enter your name"><br><br>
@@ -53,6 +126,7 @@
 
     </form>
 
+    </div>
     <hr>
 
     <p align="center">
