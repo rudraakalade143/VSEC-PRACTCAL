@@ -3,25 +3,55 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
+const PORT = 5000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect("mongodb://127.0.0.1:27017/dailynotes")
+// MongoDB connection
+mongoose
+  .connect("mongodb://127.0.0.1:27017/dailynotes")
   .then(() => console.log("MongoDB connected"))
-  .catch(error => console.log(error.message));
+  .catch((error) => console.log("MongoDB error:", error.message));
 
-const User = mongoose.model("User", new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
-}));
+// User Schema
+const userSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true
+  }
+});
 
-const Note = mongoose.model("Note", new mongoose.Schema({
-  userId: { type: String, required: true },
-  title: { type: String, required: true },
-  content: { type: String, required: true }
-}, { timestamps: true }));
+const User = mongoose.model("User", userSchema);
 
+// Note Schema
+const noteSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      required: true
+    },
+    title: {
+      type: String,
+      required: true
+    },
+    content: {
+      type: String,
+      required: true
+    }
+  },
+  { timestamps: true }
+);
+
+const Note = mongoose.model("Note", noteSchema);
+
+// Home route
 app.get("/", (req, res) => {
   res.send("DailyNotes API is running");
 });
@@ -29,7 +59,10 @@ app.get("/", (req, res) => {
 // Register
 app.post("/register", async (req, res) => {
   try {
-    const email = String(req.body.email || "").trim().toLowerCase();
+    const email = String(req.body.email || "")
+      .trim()
+      .toLowerCase();
+
     const password = String(req.body.password || "");
 
     if (!email || !password) {
@@ -40,7 +73,7 @@ app.post("/register", async (req, res) => {
 
     if (password.length < 4) {
       return res.status(400).json({
-        message: "Password must be at least 4 characters."
+        message: "Password must contain at least 4 characters."
       });
     }
 
@@ -52,9 +85,10 @@ app.post("/register", async (req, res) => {
     });
   } catch (error) {
     res.status(400).json({
-      message: error.code === 11000
-        ? "This email is already registered."
-        : "Could not create account."
+      message:
+        error.code === 11000
+          ? "Email is already registered."
+          : "Could not register."
     });
   }
 });
@@ -62,7 +96,10 @@ app.post("/register", async (req, res) => {
 // Login
 app.post("/login", async (req, res) => {
   try {
-    const email = String(req.body.email || "").trim().toLowerCase();
+    const email = String(req.body.email || "")
+      .trim()
+      .toLowerCase();
+
     const password = String(req.body.password || "");
 
     const user = await User.findOne({ email, password });
@@ -78,11 +115,13 @@ app.post("/login", async (req, res) => {
       email: user.email
     });
   } catch (error) {
-    res.status(500).json({ message: "Login failed." });
+    res.status(500).json({
+      message: "Login failed."
+    });
   }
 });
 
-// READ: Display notes for a user
+// READ: Get notes for one user
 app.get("/notes/:userId", async (req, res) => {
   try {
     const notes = await Note.find({
@@ -91,19 +130,24 @@ app.get("/notes/:userId", async (req, res) => {
 
     res.json(notes);
   } catch (error) {
-    res.status(500).json({ message: "Could not load notes." });
+    res.status(500).json({
+      message: "Could not load notes."
+    });
   }
 });
 
-// CREATE: Add a note
+// CREATE: Add note
 app.post("/notes", async (req, res) => {
   try {
     const { userId, title, content } = req.body;
 
-    if (!userId || !String(title || "").trim() ||
-        !String(content || "").trim()) {
+    if (
+      !userId ||
+      !String(title || "").trim() ||
+      !String(content || "").trim()
+    ) {
       return res.status(400).json({
-        message: "Please enter a title and note."
+        message: "Please enter title and content."
       });
     }
 
@@ -115,37 +159,83 @@ app.post("/notes", async (req, res) => {
 
     res.status(201).json(note);
   } catch (error) {
-    res.status(500).json({ message: "Could not add note." });
+    res.status(500).json({
+      message: "Could not add note."
+    });
   }
 });
 
-// UPDATE: Edit a note
+// UPDATE: Edit note
 app.put("/notes/:id", async (req, res) => {
   try {
     const { userId, title, content } = req.body;
 
+    if (
+      !userId ||
+      !String(title || "").trim() ||
+      !String(content || "").trim()
+    ) {
+      return res.status(400).json({
+        message: "Title and content are required."
+      });
+    }
+
     const note = await Note.findOneAndUpdate(
-      { _id: req.params.id, userId },
       {
-        title: String(title || "").trim(),
-        content: String(content || "").trim()
+        _id: req.params.id,
+        userId
       },
-      { new: true, runValidators: true }
+      {
+        title: String(title).trim(),
+        content: String(content).trim()
+      },
+      {
+        new: true,
+        runValidators: true
+      }
     );
 
     if (!note) {
-      return res.status(404).json({ message: "Note not found." });
+      return res.status(404).json({
+        message: "Note not found."
+      });
     }
 
     res.json(note);
   } catch (error) {
-    res.status(400).json({ message: "Could not update note." });
+    res.status(400).json({
+      message: "Could not update note."
+    });
   }
 });
 
-// DELETE: Remove a note
+// DELETE: Delete note
 app.delete("/notes/:id", async (req, res) => {
   try {
+    const { userId } = req.body;
+
     const note = await Note.findOneAndDelete({
       _id: req.params.id,
-      userId:
+      userId
+    });
+
+    if (!note) {
+      return res.status(404).json({
+        message: "Note not found."
+      });
+    }
+
+    res.json({
+      message: "Note deleted successfully."
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Could not delete note."
+    });
+  }
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
